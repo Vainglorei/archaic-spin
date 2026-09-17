@@ -1,3 +1,8 @@
+#archaic spin  v1.011
+#timestop added to hits
+#next goal: mobile playable
+#milestone goal: standardised damage in hit
+
 import pygame
 import math
 import asyncio
@@ -7,6 +12,7 @@ pygame.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((750, 750))
 font = pygame.font.Font(None, size=30)
+timestop = 0
 
 center_x, center_y = 375,375
 center= pygame.Vector2(center_x, center_y)
@@ -593,9 +599,6 @@ class Circle:
             self.hit_vel *= 0.95
 
 
-
-
-
     def draw(self,R,G,B):
         text_count = font.render(str(self.count), True, (255, 255, 255))
         text_inertia = font.render(str(self.inertia), True, (255, 255, 255))
@@ -645,6 +648,7 @@ class Circle:
                 self.trail[i],
                 2
             )
+
     def draw_ult_trail(self):
         color = layers[self.layers]["color"]
         if len(self.ult_trail) < 2:
@@ -668,7 +672,6 @@ class Circle:
                 20
             )
 
-
     def hit(self, other):
         if self.hit_cooldown > 0:
             return
@@ -686,6 +689,7 @@ class Circle:
                     avg_y = sum(p[1] for p in my_part["points"] + their_part["points"]) / (
                                 len(my_part["points"]) + len(their_part["points"]))
                     pygame.draw.circle(screen, (255, 255, 255), (avg_x, avg_y), 6)
+
 
                     #stating vars
                     vel_strength = len(self.vel)*0.4
@@ -757,7 +761,10 @@ class Circle:
                     self.stamina += stamina_dmg
                     other.stamina += stamina_dmg_other
                     print(f"kb applied to other: {kb * (6 - res * 2)}")
+                    global timestop
+                    timestop = 20
                     self.hit_cooldown = 15
+
 
 class Wall :
     def __init__(self, length, breadth,  circle , angle, spread ):
@@ -982,6 +989,7 @@ def handle_menu_click(pos):
 async def main():
     global game_state, Circle1, Circle2, Wall1, Wall2
     global dir_key1, dir_key2
+    global timestop
 
     running = True
 
@@ -1050,6 +1058,7 @@ async def main():
             menu_btn_text = font.render("RESET", True, (255, 255, 255))
             screen.blit(menu_btn_text, (RESET_BUTTON_RECT.x + 8, RESET_BUTTON_RECT.y + 6))
 
+            # Work out wall directions
             if dir_key1 == True:
                 direction_wall1 = 1
             else:
@@ -1060,39 +1069,56 @@ async def main():
             else:
                 direction_wall2 = -1
 
+            # =========================
+            # PHYSICS
+            # =========================
+
+            if timestop > 0:
+                # Freeze physics
+                timestop -= 1
+
+            else:
+                if not Circle1.lose:
+                    Circle1.inspin(center)
+                    Wall1.update(direction_wall1)
+
+                if not Circle2.lose:
+                    Circle2.inspin(center)
+                    Wall2.update(direction_wall2)
+
+                if not Circle1.lose and not Circle2.lose:
+                    wall_hit_circle(Wall1, Circle2)
+                    wall_hit_circle(Wall2, Circle1)
+                    wall_hit_circle(Wall1, Circle1)
+                    wall_hit_circle(Wall2, Circle2)
+
+                    Circle1.hit(Circle2)
+                    Circle2.hit(Circle1)
+
+            # =========================
+            # DRAWING
+            # =========================
+
             if not Circle1.lose:
-                Circle1.inspin(center)
                 Circle1.draw_trail()
-                Circle1.draw(0, 0, 0)
                 Circle1.update_parts()
+                Circle1.draw(0, 0, 0)
                 Circle1.draw_parts()
-                Wall1.update(direction_wall1)
 
                 if Circle1.in_ult > 0:
                     Circle1.draw_ult_trail()
 
             if not Circle2.lose:
-                Circle2.inspin(center)
                 Circle2.draw_trail()
-                Circle2.draw(0, 0, 0)
                 Circle2.update_parts()
+                Circle2.draw(0, 0, 0)
                 Circle2.draw_parts()
-                Wall2.update(direction_wall2)
 
                 if Circle2.in_ult > 0:
                     Circle2.draw_ult_trail()
 
             Wall1.draw(Circle1.layers)
-
             Wall2.draw(Circle2.layers)
-
-            if not Circle1.lose and not Circle2.lose:
-                wall_hit_circle(Wall1, Circle2)
-                wall_hit_circle(Wall2, Circle1)
-                wall_hit_circle(Wall1, Circle1)
-                wall_hit_circle(Wall2, Circle2)
-                Circle1.hit(Circle2)
-                Circle2.hit(Circle1)
 
             # win condition check
             if Circle1.lose or Circle1.stamina <= 0:
@@ -1120,5 +1146,4 @@ async def main():
         await asyncio.sleep(0)
 
 asyncio.run(main())
-
 
