@@ -1,6 +1,6 @@
-#archaic spin  v1.011
-#timestop added to hits
-#next goal: mobile playable
+#archaic spin  v1.012
+#added buttons for mobile
+#next to add ui update, hp bar to be circle timer, find a place to put reset
 #milestone goal: standardised damage in hit
 
 import pygame
@@ -13,6 +13,8 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((750, 750))
 font = pygame.font.Font(None, size=30)
 timestop = 0
+p1_skill = False
+p2_skill = False
 
 center_x, center_y = 375,375
 center= pygame.Vector2(center_x, center_y)
@@ -860,7 +862,13 @@ LAYER_PREVIEW_POS = {
     "p2": (375*6/4, 240),
 }
 
-RESET_BUTTON_RECT = pygame.Rect(650, 700, 90, 40)
+RESET_BUTTON_RECT = pygame.Rect(320, 700, 90, 40)
+
+p1_skill_btn = pygame.Rect(680, 680, 60, 60)
+p2_skill_btn = pygame.Rect(10, 10, 60, 60)
+
+p1_wall_btn = pygame.Rect(10, 680, 60, 60)
+p2_wall_btn = pygame.Rect(680, 10, 60, 60)
 
 def draw_menu():
     screen.fill((15, 15, 25))
@@ -990,6 +998,7 @@ async def main():
     global game_state, Circle1, Circle2, Wall1, Wall2
     global dir_key1, dir_key2
     global timestop
+    global p1_skill, p2_skill
 
     running = True
 
@@ -1008,42 +1017,55 @@ async def main():
                         game_state = 'menu'
                         Circle1 = Circle2 = None
                         Wall1 = Wall2 = None
+
+                    if p1_skill_btn.collidepoint(event.pos):
+                        p1_skill = True
+                    else:
+                        p1_skill = False
+
+                    if p2_skill_btn.collidepoint(event.pos):
+                        p2_skill = True
+                    else:
+                        p2_skill = False
+
+                    if p1_wall_btn.collidepoint(event.pos):
+                        dir_key1 = not dir_key1
+                    if p2_wall_btn.collidepoint(event.pos):
+                        dir_key2 = not dir_key2
+
+
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q and Circle1.ult_cd == 0:
-                        Circle1.in_ult = ults[Circle1.ult]["duration"]
-                        Circle1.ult_cd = ults[Circle1.ult]["cooldown"]
-                        if Circle1.ult == "guard":
-                            Circle1.base_vel *= ults[Circle1.ult]["vel_boost"]
-                        elif Circle1.ult == "accel":
-                            Circle1.base_vel *= ults[Circle1.ult]["vel_boost"]
-                        elif Circle1.ult == "anchor":
-                            Circle1.base_vel *= ults[Circle1.ult]["vel_boost"] * 2
-                            Circle1.hit_vel *= ults[Circle1.ult]["vel_boost"]
-
-                    if event.key == pygame.K_p and Circle2.ult_cd == 0:
-                        Circle2.in_ult = ults[Circle2.ult]["duration"]
-                        Circle2.ult_cd = ults[Circle2.ult]["cooldown"]
-                        if Circle2.ult == "guard":
-                            Circle2.base_vel *= ults[Circle2.ult]["vel_boost"]
-                        elif Circle2.ult == "accel":
-                            Circle2.base_vel *= ults[Circle2.ult]["vel_boost"]
-                            Circle2.inertia += 12
-                        elif Circle2.ult == "anchor":
-                            Circle2.base_vel *= ults[Circle2.ult]["vel_boost"]
-                            Circle2.hit_vel *= ults[Circle2.ult]["vel_boost"]
-
+                    if event.key == pygame.K_q:
+                        p1_skill = True
+                    if event.key == pygame.K_p:
+                        p2_skill = True
                     if event.key == pygame.K_a:
-
-                        if dir_key1 == True:
-                            dir_key1 = False
-                        else:
-                            dir_key1 = True
+                        dir_key1 = not dir_key1
                     if event.key == pygame.K_l:
-                        if dir_key2 == True:
-                            dir_key2 = False
-                        else:
-                            dir_key2 = True
+                        dir_key2 = not dir_key2
 
+        if p1_skill and Circle1.ult_cd == 0:
+            Circle1.in_ult = ults[Circle1.ult]["duration"]
+            Circle1.ult_cd = ults[Circle1.ult]["cooldown"]
+            if Circle1.ult in ("guard", "accel"):
+                Circle1.base_vel *= ults[Circle1.ult]["vel_boost"]
+            elif Circle1.ult == "anchor":
+                Circle1.base_vel *= ults[Circle1.ult]["vel_boost"] * 2
+                Circle1.hit_vel *= ults[Circle1.ult]["vel_boost"]
+        p1_skill = False
+
+        if p2_skill and Circle2.ult_cd == 0:
+            Circle2.in_ult = ults[Circle2.ult]["duration"]
+            Circle2.ult_cd = ults[Circle2.ult]["cooldown"]
+            if Circle2.ult == "guard":
+                Circle2.base_vel *= ults[Circle2.ult]["vel_boost"]
+            elif Circle2.ult == "accel":
+                Circle2.base_vel *= ults[Circle2.ult]["vel_boost"]
+                Circle2.inertia += 12
+            elif Circle2.ult == "anchor":
+                Circle2.base_vel *= ults[Circle2.ult]["vel_boost"]
+                Circle2.hit_vel *= ults[Circle2.ult]["vel_boost"]
+        p2_skill = False
         # menu on
         if game_state == 'menu':
             draw_menu()
@@ -1054,11 +1076,14 @@ async def main():
             pygame.draw.circle(screen, (255, 255, 255), center, 350, 5)
             pygame.draw.circle(screen, (255, 0, 0), center, 120, 2)
 
+            pygame.draw.rect(screen, (140, 140, 140), p1_wall_btn, border_radius=25)
+            pygame.draw.rect(screen, (140, 140, 140), p2_wall_btn, border_radius=25)
+            pygame.draw.rect(screen, (layers[Circle1.layers]["color"]), p1_skill_btn, border_radius=25)
+            pygame.draw.rect(screen, (layers[Circle2.layers]["color"]), p2_skill_btn, border_radius=25)
             pygame.draw.rect(screen, (180, 40, 40), RESET_BUTTON_RECT, border_radius=6)
-            menu_btn_text = font.render("RESET", True, (255, 255, 255))
-            screen.blit(menu_btn_text, (RESET_BUTTON_RECT.x + 8, RESET_BUTTON_RECT.y + 6))
+            reset_btn_text = font.render("RESET", True, (255, 255, 255))
+            screen.blit(reset_btn_text, (RESET_BUTTON_RECT.x + 8, RESET_BUTTON_RECT.y + 8))
 
-            # Work out wall directions
             if dir_key1 == True:
                 direction_wall1 = 1
             else:
