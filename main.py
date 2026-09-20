@@ -1,6 +1,6 @@
-#archaic spin  v1.012
-#added buttons for mobile
-#next to add ui update, hp bar to be circle timer, find a place to put reset
+#archaic-spin_v1.013
+#added hp bar as circle timer, reset now at center
+#next to add ui update, start to standardise
 #milestone goal: standardised damage in hit
 
 import pygame
@@ -19,12 +19,7 @@ p2_skill = False
 center_x, center_y = 375,375
 center= pygame.Vector2(center_x, center_y)
 collided = False
-def make_circle_points(radius, num_points=30):
-    points = []
-    for i in range(num_points):
-        angle = 2 * math.pi * i / num_points
-        points.append([radius * math.cos(angle), radius * math.sin(angle)])
-    return points
+
 dir_key1 = True
 dir_key2 = True
 C1 = 'einherjar'
@@ -33,6 +28,13 @@ C1_ult = 'accel'
 C2_ult = 'anchor'
 
 
+
+def make_circle_points(radius, num_points=30):
+    points = []
+    for i in range(num_points):
+        angle = 2 * math.pi * i / num_points
+        points.append([radius * math.cos(angle), radius * math.sin(angle)])
+    return points
 
 ults = {
     "accel": {
@@ -862,10 +864,10 @@ LAYER_PREVIEW_POS = {
     "p2": (375*6/4, 240),
 }
 
-RESET_BUTTON_RECT = pygame.Rect(320, 700, 90, 40)
+RESET_BUTTON_RECT = pygame.Rect(345, 345, 60, 60)
 
-p1_skill_btn = pygame.Rect(680, 680, 60, 60)
-p2_skill_btn = pygame.Rect(10, 10, 60, 60)
+p1_skill_btn = pygame.Rect(660, 660, 80, 80)
+p2_skill_btn = pygame.Rect(10, 10, 80, 80)
 
 p1_wall_btn = pygame.Rect(10, 680, 60, 60)
 p2_wall_btn = pygame.Rect(680, 10, 60, 60)
@@ -1073,16 +1075,16 @@ async def main():
         elif game_state == 'playing':
 
             screen.fill((0, 0, 0))
-            pygame.draw.circle(screen, (255, 255, 255), center, 350, 5)
-            pygame.draw.circle(screen, (255, 0, 0), center, 120, 2)
+            pygame.draw.circle(screen, (255, 255, 255), center, 350, 7)
+            pygame.draw.circle(screen, (255, 0, 0), center, 120, 3)
 
             pygame.draw.rect(screen, (140, 140, 140), p1_wall_btn, border_radius=25)
             pygame.draw.rect(screen, (140, 140, 140), p2_wall_btn, border_radius=25)
             pygame.draw.rect(screen, (layers[Circle1.layers]["color"]), p1_skill_btn, border_radius=25)
             pygame.draw.rect(screen, (layers[Circle2.layers]["color"]), p2_skill_btn, border_radius=25)
-            pygame.draw.rect(screen, (180, 40, 40), RESET_BUTTON_RECT, border_radius=6)
-            reset_btn_text = font.render("RESET", True, (255, 255, 255))
-            screen.blit(reset_btn_text, (RESET_BUTTON_RECT.x + 8, RESET_BUTTON_RECT.y + 8))
+            pygame.draw.rect(screen, (250, 40, 40), RESET_BUTTON_RECT, border_radius=60)
+            #reset_btn_text = font.render("RESET", True, (255, 255, 255))
+            #screen.blit(reset_btn_text, (RESET_BUTTON_RECT.x + 8, RESET_BUTTON_RECT.y + 8))
 
             if dir_key1 == True:
                 direction_wall1 = 1
@@ -1094,12 +1096,8 @@ async def main():
             else:
                 direction_wall2 = -1
 
-            # =========================
-            # PHYSICS
-            # =========================
 
             if timestop > 0:
-                # Freeze physics
                 timestop -= 1
 
             else:
@@ -1163,10 +1161,26 @@ async def main():
             c2_hp = (Circle2.stamina - 0.03) * 100 - 1
             if c2_hp <= 0:
                 c2_hp = 0
-            text1 = font.render(f'{Circle1.layers} stamina: {c1_hp:.2f}', True, (0, 170, 220))
-            text2 = font.render(f'{Circle2.layers} stamina: {c2_hp:.2f}', True, (0, 170, 220))
-            screen.blit(text1, (20, 20))
-            screen.blit(text2, (490, 20))
+
+
+
+            c1_hp = max(0.0, min(Circle1.stamina / 0.1, 1.0))  # clamp
+
+            start_angle = math.pi / 2
+            c1_hp = start_angle + c1_hp * 2 * math.pi
+
+            if c1_hp > start_angle:  # avoid a zero-length arc call
+                pygame.draw.arc(screen, "green", [650, 650, 100, 100], start_angle, c1_hp, 10)
+
+            c2_hp = max(0.0, min(Circle2.stamina / 0.1, 1.0))  # clamp
+
+
+            c2_hp = start_angle + c2_hp * 2 * math.pi
+
+            if c2_hp > start_angle:  # avoid a zero-length arc call
+                pygame.draw.arc(screen, "green", [0, 0, 100, 100], start_angle, c2_hp, 10)
+
+
         pygame.display.flip()
         await asyncio.sleep(0)
 
