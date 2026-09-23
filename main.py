@@ -1,7 +1,7 @@
-#archaic-spin_v1.013
-#added hp bar as circle timer, reset now at center
-#next to add ui update, start to standardise
-#milestone goal: standardised damage in hit
+#archaic-spin_v1.014
+#redo dmg and stamina, standardised defence
+#next to start doing ults
+#milestone goal: ults
 
 import pygame
 import math
@@ -24,8 +24,8 @@ dir_key1 = True
 dir_key2 = True
 C1 = 'einherjar'
 C2 = 'titantrium'
-C1_ult = 'accel'
-C2_ult = 'anchor'
+C1_movement_skill = 'accel'
+C2_movement_skill = 'anchor'
 
 
 
@@ -36,7 +36,8 @@ def make_circle_points(radius, num_points=30):
         points.append([radius * math.cos(angle), radius * math.sin(angle)])
     return points
 
-ults = {
+
+movement_skills = {
     "accel": {
         "cooldown": 250,
         "duration": 40,
@@ -94,23 +95,23 @@ layers = {
                 "name": "left_hilt",
                 "points": [[-30.11, -17.5], [-8, -32], [-22, -8], [-18, 18], [-30, 5]],
                 "color": (240, 0, 10),
-                "knockback": 2.1,
-                "resistance": 1.8
+                "knockback": 10,
+                "resistance": 0.9
             },
             {
                 "name": "right_hilt",
                 "points": [[30.11,-17.5],[8,-32],[22,-8],[18,18],[30,5]],
                 "color": (240, 0, 10),
-                "knockback": 2.1,
-                "resistance": 1.8
+                "knockback": 10,
+                "resistance": 0.9
 
             },
             {
                 "name": "big_blade",
                 "points": [[0, 38], [13, 22], [17, -4], [0, -25], [-17, -4], [-13, 22]],
                 "color": (240, 0, 10),
-                "knockback": 5,
-                "resistance": 0.8
+                "knockback": 17,
+                "resistance": 1
             },
             {
                 "name": "diamond",
@@ -147,30 +148,30 @@ layers = {
                 "points": [[-34, -12], [-23, -26], [-9, -26], [-5, -24], [-17, -4], [-13, 20], [-28, 18], [-32, 2],
                            [-27, -4]],
                 "color": (20, 180, 20),
-                "knockback": 1.1,
-                "resistance": 2.2
+                "knockback": 6,
+                "resistance": 0.6
             },
             {
                 "name": "guard_2",
                 "points": [[34, 12], [23, 26], [9, 26], [5, 24], [17, 4], [13, -20], [28, -18], [32, -2],
                            [27, 8]],
                 "color": (20, 180, 20),
-                "knockback": 1.1,
-                "resistance": 2.2
+                "knockback": 6,
+                "resistance": 0.6
             },
             {
                 "name": "prod_1",
                 "points": [[-21, 25], [-25, 2], [-4, 35]],
                 "color": (20, 100, 20),
-                "knockback": 2.2,
-                "resistance": 1.5
+                "knockback": 11,
+                "resistance": 0.75
             },
             {
                 "name": "prod_2",
                 "points": [[21, -25], [25, -2], [4, -35]],
                 "color": (20, 100, 20),
-                "knockback": 2.2,
-                "resistance": 1.5
+                "knockback": 11,
+                "resistance": 0.75
             },
 
         ]
@@ -199,24 +200,24 @@ layers = {
                 "name": "blade_1",
                 "points": [[25.9808, -15], [26, -26], [19, -32.5], [19, -26], [12, -34], [1, -35], [11, -25]],
                 "color": (50, 150, 250),
-                "knockback": 1.8,
-                "resistance": 0.4
+                "knockback": 9,
+                "resistance": 0.9
             },
             {
                 "name": "blade_2",
                 "points": [[-0.0004, 30.0000], [9.5167, 35.5167], [18.6458, 32.7045], [13.0167, 29.4545],
                            [23.4449, 27.3923], [29.8109, 18.3660], [16.1506, 22.0263]],
                 "color": (50, 150, 250),
-                "knockback": 1.8,
-                "resistance": 0.4
+                "knockback": 9,
+                "resistance": 0.9
             },
             {
                 "name": "blade_3",
                 "points": [[-25.9804, -15.0000], [-35.5167, -9.5167], [-37.6458, -0.2045],
                            [-32.0167, -3.4545], [-35.4449, 6.6077], [-30.8109, 16.6340], [-27.1506, 2.9737]],
                 "color": (50, 150, 250),
-                "knockback": 1.8,
-                "resistance": 0.4
+                "knockback": 9,
+                "resistance": 0.9
             },
 
 
@@ -224,22 +225,22 @@ layers = {
                 "name": "crit_1",
                 "points": [[25.9808,-15], [28, -28], [30,-7], ],
                 "color": (240, 0, 10),
-                "knockback": 2.6,
-                "resistance": 0.8
+                "knockback": 13,
+                "resistance": 0.95
             },
             {
                 "name": "crit_2",
                 "points": [[-0.0004, 30.0],[10.2487, 38.2487],[-8.9378, 29.4808]],
                 "color": (240, 0, 10),
-                "knockback": 2.6,
-                "resistance": 0.8
+                "knockback": 13,
+                "resistance": 0.95
             },
             {
                 "name": "crit_3",
                 "points": [[-25.9804, -15.0],[-38.2487, -10.2487],[-21.0622, -22.4808]],
                 "color": (240, 0, 10),
-                "knockback": 2.6,
-                "resistance": 0.8
+                "knockback": 13,
+                "resistance": 0.95
             },
 
         ]
@@ -267,15 +268,15 @@ layers = {
                 "name": "blade_1",
                 "points": [[0, -30], [-8, -33], [-23, -28], [-29, -15], [-33, 2], [-25, 8], [-22, -7]],
                 "color": (255, 120, 0),
-                "knockback": 1.5,
-                "resistance": 1.5
+                "knockback": 5,
+                "resistance": 0.8
             },
             {
                 "name": "blade_2",
                 "points": [[-0, 30], [8, 33], [23, 28], [29, 15], [33, -2], [25, -8], [22, 7]],
                 "color": (255, 120, 00),
-                "knockback": 1.5,
-                "resistance": 1.5
+                "knockback": 5,
+                "resistance": 0.8
             },
 
         ]
@@ -303,29 +304,29 @@ layers = {
                 "name": "titanium_blade_1",
                 "points": [[0, 30], [-7, 34], [-23, 28], [-29, 15], [-22, 7]],
                 "color": (80,80 , 80),
-                "knockback": 3.5,
-                "resistance": 1.
+                "knockback": 12,
+                "resistance": 0.8
             },
             {
                 "name": "titanium_hilt_1",
                 "points": [[-20, 25], [-34, -7.5],[-27,-20] ,[-20,-20],[-18,10] ],
                 "color": (170, 170, 170),
-                "knockback": 2.5,
-                "resistance": 1.5
+                "knockback": 10,
+                "resistance": 0.75
             },
             {
                 "name": "titanium_blade_2",
                 "points": [[0, -30], [7, -34], [23, -28], [29, -15], [22, -7]],
                 "color": (80, 80, 80),
-                "knockback": 3.5,
-                "resistance": 1.
+                "knockback": 12,
+                "resistance": 0.8
             },
             {
                 "name": "titanium_hilt_2",
                 "points": [[20, -25], [34, 7.5], [27, 20], [20, 20], [18, -10]],
                 "color": (170, 170, 170),
-                "knockback": 2.5,
-                "resistance": 1.5
+                "knockback": 10,
+                "resistance": 0.75
             },
 
         ]
@@ -378,11 +379,9 @@ def wall_hit_circle(wall, circle):
                 normal = (circle.pos - pygame.Vector2(wall_cx, wall_cy))
                 if normal.length() > 0:
                     normal = normal.normalize()
-                    circle.base_vel += normal * 2
-                    circle.hit_vel += normal * 2
-                    if len(circle.hit_vel) > 6:
-                        print(circle.hit_vel)
-                        circle.stamina -= 0.002
+                    circle.base_vel += normal * 1.5
+                    circle.hit_vel += normal * 1.5
+                    circle.stamina -= 0.00002
 
                     circle.inertia += 2
                 return True
@@ -393,7 +392,7 @@ def wall_hit_circle(wall, circle):
 class Circle:
     def __init__(self, pos, last_distance, calc_distance, inertia, count,
                  duration, startx, starty,domain,grip,inertia_strength,base_vel,hit_vel,vel,
-                 angle,layers,stamina,lose,hit_cooldown,ult):
+                 angle,layers,stamina,lose,hit_cooldown,movement_skill):
         self.pos = pos
         self.last_distance = last_distance
         self.calc_distance = calc_distance
@@ -414,16 +413,18 @@ class Circle:
         self.world_parts = []
         self.lose = lose
         self.hit_cooldown = hit_cooldown
+        self.contact_cd = 0
         self.trail = []
         self.ult_trail = []
+        self.movement_skill_trail = []
 
         # physics using vectors
         self.pos = pygame.Vector2(self.startx, self.starty)
 
-        #ults
-        self.ult = ult
-        self.ult_cd = 0
-        self.in_ult = 0
+        #movement skill
+        self.movement_skill = movement_skill
+        self.movement_skill_cd = 0
+        self.in_movement_skill = 0
 
 
     def inspin(self,center, ):
@@ -561,34 +562,39 @@ class Circle:
         #hit cd
         if self.hit_cooldown > 0:
             self.hit_cooldown -= 1
+
+        # contact cd
+        if self.contact_cd > 0:
+            self.contact_cd -= 1
+
         #max speed
-        max_speed = 11.2  #rigged
+        max_speed = 12  #rigged
         if self.vel.length() > max_speed:
             self.vel.scale_to_length(max_speed)
 
 
-        #ults timer
-        if self.ult_cd> 0:
-            self.ult_cd -= 1
-        if self.in_ult > 0:
-            self.in_ult -= 1
-        #ults code
-        ult = ults[self.ult]
-        if self.in_ult > 0:
-            if ult["kb_reflect"]:
+        #movement_skills timer
+        if self.movement_skill_cd> 0:
+            self.movement_skill_cd -= 1
+        if self.in_movement_skill > 0:
+            self.in_movement_skill -= 1
+        #movement_skills code
+        movement_skill = movement_skills[self.movement_skill]
+        if self.in_movement_skill > 0:
+            if movement_skill["kb_reflect"]:
                 self.hit_vel *= -1
-            if self.ult == 'anchor':
+            if self.movement_skill == 'anchor':
                 self.hit_vel *= 0.5
                 self.base_vel *= 0.5
                 self.inertia += 1
 
 
 
-        #ult indicator == the trail
-        self.ult_trail.append((self.pos.x, self.pos.y))
+        #movement_skill indicator == the trail
+        self.movement_skill_trail.append((self.pos.x, self.pos.y))
 
-        if len(self.ult_trail) > 25:
-            self.ult_trail.pop(0)
+        if len(self.movement_skill_trail) > 25:
+            self.movement_skill_trail.pop(0)
 
 
 
@@ -653,122 +659,170 @@ class Circle:
                 2
             )
 
-    def draw_ult_trail(self):
+    def draw_movement_skill_trail(self):
         color = layers[self.layers]["color"]
-        if len(self.ult_trail) < 2:
+        if len(self.movement_skill_trail) < 2:
             return
 
-        for i in range(1, len(self.ult_trail)):
+        for i in range(1, len(self.movement_skill_trail)):
 
 
             pygame.draw.line(
                 screen,
                 (250,10,250 ),
-                self.ult_trail[i - 1],
-                self.ult_trail[i],
+                self.movement_skill_trail[i - 1],
+                self.movement_skill_trail[i],
                 25
             )
             pygame.draw.line(
                 screen,
                 (210,0 ,200  ),
-                self.ult_trail[i - 1],
-                self.ult_trail[i],
+                self.movement_skill_trail[i - 1],
+                self.movement_skill_trail[i],
                 20
             )
 
     def hit(self, other):
         if self.hit_cooldown > 0:
-            return
+            return False
+        if self.contact_cd > 0 or other.contact_cd > 0:
+            return False
+
         delta = self.pos - other.pos
         if delta.length() == 0:
-            return
+            return False
         normal = delta.normalize()
+
+        # ---- PHASE 1: scan, don't apply anything ----
+        best = None
+        best_score = -1
 
         for my_part in self.world_parts:
             for their_part in other.world_parts:
+                if not polygons_overlap(my_part["points"], their_part["points"]):
+                    continue
 
-                if polygons_overlap(my_part["points"], their_part["points"]):
-                    avg_x = sum(p[0] for p in my_part["points"] + their_part["points"]) / (
-                                len(my_part["points"]) + len(their_part["points"]))
-                    avg_y = sum(p[1] for p in my_part["points"] + their_part["points"]) / (
-                                len(my_part["points"]) + len(their_part["points"]))
-                    pygame.draw.circle(screen, (255, 255, 255), (avg_x, avg_y), 6)
+                # TODO: compute whatever "how strong is this contact" score you want
+                # stating vars
+                #vel_strength = len(self.vel)/3 so interesting how i got this wrong
+                vel_strength = self.vel.length() / 3
+                if layers[self.layers]["type"] == "attack":
+                    vel_strength = max(0.9, min(vel_strength, 3))
+                else:
+                    vel_strength = max(1.5, min(vel_strength, 4))
+                kb = my_part["knockback"]
+                kb = kb * vel_strength
+                res_other = their_part["resistance"]
+
+                #print(vel_strength)
+                force = kb * res_other
+
+                if force < 2.5:
+                    continue
+                if res_other == 0:  # ignore deco
+                    continue
+
+                if force > best_score:
+                    best_score = force
+                    best = {
+                        "my_part": my_part,
+                        "their_part": their_part,
+                        "kb": kb,
+                        "res_other": their_part["resistance"],
+                        "res": my_part["resistance"],
+                        "vel_strength": vel_strength,
+                        "force": force,
+                    }
+                avg_x = sum(p[0] for p in my_part["points"] + their_part["points"]) / (
+                        len(my_part["points"]) + len(their_part["points"]))
+                avg_y = sum(p[1] for p in my_part["points"] + their_part["points"]) / (
+                        len(my_part["points"]) + len(their_part["points"]))
+                pygame.draw.circle(screen, (255, 255, 255), (avg_x, avg_y), 6)
+
+                print(my_part["name"], "vs", their_part["name"])
+
+        if best is None:
+            return  # nothing valid overlapped
 
 
-                    #stating vars
-                    vel_strength = len(self.vel)*0.4
-                    if layers[self.layers]["type"] == "attack":
-                        vel_strength = max(0.1, min(vel_strength, 3.5))
-                    else:
-                        vel_strength = max(0.9, min(vel_strength, 4))
-                    kb = my_part["knockback"]
-                    kb = kb * vel_strength
-                    res = their_part["resistance"]
-                    defence= my_part["resistance"]
-                    force = kb * (7 - res * 2)
-                    stamina_dmg = 0
-                    stamina_dmg_other =0
 
-                    if force < 2.5:
-                        continue
-                    if res == 0:  # ignore deco
-                        continue
+        # ---- PHASE 2: apply damage exactly once ----
+        # TODO: your new damage/knockback formula goes here,
+        # using my_part / their_part / normal
+        stamina_dmg = 0
+        stamina_dmg_other = 0
 
+        my_part = best["my_part"]
+        their_part = best["their_part"]
+        kb = best["kb"]
+        res = best["res"]
+        res_other = best["res_other"]
+        force = best["force"]
+        vel_strength = best["vel_strength"]
 
+        weight = layers[self.layers]["weight"]
+        weight2 = layers[other.layers]["weight"]
 
-                    if their_part["is_core"]:
+        #core hit
+        if their_part["is_core"]:
 
-                        stamina_dmg_other -= kb/min(vel_strength,0.2)
-                        other.hit_vel += -normal * kb/min(vel_strength,0.2)
-                        self.hit_vel += -normal * kb
-                        if my_part["is_core"]:
-                            stamina_dmg_other -= kb/2
-                            other.hit_vel += -normal * kb
-                            stamina_dmg -= kb/2
-                            self.hit_vel += -normal * kb
+            stamina_dmg_other -= kb
+            other.hit_vel += -normal * kb
+            self.hit_vel += -normal * force
+            if my_part["is_core"]:
+                stamina_dmg -= kb
 
 
-                    #excalibur buff
-                    if my_part["name"] == "big_blade":
+        # excalibur buff
+        elif my_part["name"] == "big_blade":
 
-                        print(f"big hit")
-                        if layers[other.layers]["type"] == "defence":
-                            other.hit_vel += -normal * kb*1.5
-                            stamina_dmg += 0.0005
-                            self.hit_vel += -normal * (kb - res)
-                        else:
-                            other.hit_vel += -normal * kb*1.5
-                            stamina_dmg += 0.0009
-                        pygame.draw.circle(screen, (240, 240, 240), (avg_x, avg_y), 18)
+            print(f"big hit")
+            if layers[other.layers]["type"] == "defence":
+                other.hit_vel += -normal * kb * weight/weight2
+                #stamina_dmg += 0.0005
+                self.hit_vel += normal * force  * weight/weight2
+            else:
+                other.hit_vel += -normal * kb * weight/weight2
+                #stamina_dmg += 0.0009
+                self.hit_vel += normal * force * weight/weight2
+            stamina_dmg -= force * 0.00008
+            other.stamina -= force * 0.00018
+            pygame.draw.circle(screen, (240, 240, 240), (avg_x, avg_y), 20)
 
-                    #stamina ult
-                    if layers[self.layers]["type"] == "stamina":
-                        if self.in_ult >0:
-                            stamina_dmg += 0.0003
-                            self.hit_vel *= 0.3
-                            if layers[other.layers]["type"] == "defence":
-                                stamina_dmg += 0.0003
 
-                    weight = layers[self.layers]["weight"]
-                    weight2 = layers[other.layers]["weight"]
+        else:
+        #normal hit
+            other.hit_vel += -normal * force * (weight/weight2)
+            self.hit_vel += normal * force * (weight / weight2)
 
-                    self.hit_vel += normal * kb * (7 - defence) * ((weight/weight2) * 1.2)
-                    other.hit_vel += -normal * kb * (13 - res*3) * ((weight/weight2) * 1.2)
+            stamina_dmg -= force * 0.00008
+            other.stamina -= force * 0.00018
 
-                    stamina_dmg -= kb*(3 - defence ) * 0.0001
-                    other.stamina -=  kb*(3 - res ) * 0.0005
-                    if layers[self.layers]["type"] == "stamina":
-                        if self.domain == True:
+        # stamina movement_skill
+        if layers[self.layers]["type"] == "stamina":
+            if self.in_movement_skill > 0:
+                stamina_dmg *= 0.2
+                self.hit_vel *= 0.3
+            if self.domain == True:
+                stamina_dmg *= 0.7
+                self.hit_vel *= 0.9
 
-                            stamina_dmg += (10-kb)*( res+defence+2 ) * 0.00004
+        self.stamina += stamina_dmg
+        other.stamina += stamina_dmg_other
+        print(
+            f"{my_part['name']} -> {their_part['name']} | "
+            f"speed={self.vel.length():.2f} | "
+            f"vel_strength={vel_strength:.2f} | "
+            f"force={force:.3f}"
+        )
 
-                    self.stamina += stamina_dmg
-                    other.stamina += stamina_dmg_other
-                    print(f"kb applied to other: {kb * (6 - res * 2)}")
-                    global timestop
-                    timestop = 20
-                    self.hit_cooldown = 15
-
+        #self.hit_cooldown = 20
+        self.contact_cd = 10
+        other.contact_cd = 10
+        global timestop
+        timestop = 20
+        print("distance after hit:", self.pos.distance_to(other.pos))
+        return True
 
 class Wall :
     def __init__(self, length, breadth,  circle , angle, spread ):
@@ -817,16 +871,16 @@ class Wall :
 game_state = 'menu'
 
 menu = {
-    "p1": {"layer": list(layers.keys())[0], "ult": list(ults.keys())[0]},
-    "p2": {"layer": list(layers.keys())[1], "ult": list(ults.keys())[1]},
+    "p1": {"layer": list(layers.keys())[0], "movement_skill": list(movement_skills.keys())[0]},
+    "p2": {"layer": list(layers.keys())[1], "movement_skill": list(movement_skills.keys())[1]},
 }
 
 
 
 def build_buttons():
-    ult_names = list(ults.keys())
+    movement_skill_names = list(movement_skills.keys())
     buttons = {
-        "p1_ults": [], "p2_ults": [],
+        "p1_movement_skills": [], "p2_movement_skills": [],
         "start": pygame.Rect(275, 680, 200, 45),
         "p1_layer_prev": pygame.Rect(30, 220, 40, 40),
         "p1_layer_next": pygame.Rect(305, 220, 40, 40),
@@ -834,9 +888,9 @@ def build_buttons():
         "p2_layer_next": pygame.Rect(680, 220, 40, 40),
     }
 
-    for i, name in enumerate(ult_names):
-        buttons["p1_ults"].append({"rect": pygame.Rect(15 + i * 120, 490, 110, 40), "value": name})
-        buttons["p2_ults"].append({"rect": pygame.Rect(390 + i * 120, 490, 110, 40), "value": name})
+    for i, name in enumerate(movement_skill_names):
+        buttons["p1_movement_skills"].append({"rect": pygame.Rect(15 + i * 120, 490, 110, 40), "value": name})
+        buttons["p2_movement_skills"].append({"rect": pygame.Rect(390 + i * 120, 490, 110, 40), "value": name})
 
     return buttons
 
@@ -866,11 +920,11 @@ LAYER_PREVIEW_POS = {
 
 RESET_BUTTON_RECT = pygame.Rect(345, 345, 60, 60)
 
-p1_skill_btn = pygame.Rect(660, 660, 80, 80)
-p2_skill_btn = pygame.Rect(10, 10, 80, 80)
+p1_skill_btn = pygame.Rect(640, 640, 100, 100)
+p2_skill_btn = pygame.Rect(10, 10, 100, 100)
 
-p1_wall_btn = pygame.Rect(10, 680, 60, 60)
-p2_wall_btn = pygame.Rect(680, 10, 60, 60)
+p1_wall_btn = pygame.Rect(10, 645, 100, 100)
+p2_wall_btn = pygame.Rect(645, 10, 100, 100)
 
 def draw_menu():
     screen.fill((15, 15, 25))
@@ -883,7 +937,7 @@ def draw_menu():
 
     for x in [15, 390]:
         screen.blit(font.render("MYTHOS:", True, (180, 180, 180)), (x, 70))
-        screen.blit(font.render("ULT", True, (180, 180, 180)), (x, 460))
+        screen.blit(font.render("SKILL", True, (180, 180, 180)), (x, 460))
 
 
     # Layer arrow selector + design preview
@@ -909,10 +963,10 @@ def draw_menu():
         name_label = font.render(ly, True, (220, 220, 220))
         screen.blit(name_label, (x_off, 100))
 
-    # Ult buttons
-    for side, key in [("p1", "p1_ults"), ("p2", "p2_ults")]:
+    # Movement_skill buttons
+    for side, key in [("p1", "p1_movement_skills"), ("p2", "p2_movement_skills")]:
         for btn in menu_buttons[key]:
-            selected = menu[side]["ult"] == btn["value"]
+            selected = menu[side]["movement_skill"] == btn["value"]
             color = (120, 0, 180) if selected else (50, 50, 60)
             pygame.draw.rect(screen, color, btn["rect"], border_radius=6)
             pygame.draw.rect(screen, (200, 200, 200), btn["rect"], 1, border_radius=6)
@@ -922,7 +976,7 @@ def draw_menu():
     # Description previews
     for side, x_off in [("p1", 15), ("p2", 390)]:
         ly = menu[side]["layer"]
-        ul = menu[side]["ult"]
+        ul = menu[side]["movement_skill"]
         col = layers[ly]["color"]
 
         pygame.draw.circle(screen, col, (x_off - 30 + 50, 570), 22)
@@ -934,13 +988,13 @@ def draw_menu():
             screen.blit(t, (x_off , y))
             y += 22
 
-        ult_y = 560
-        screen.blit(font.render("ULT:", True, (200, 100, 255)), (x_off - 30 + 85, ult_y))
-        ult_y += 22
-        for line in ults[ul].get("desc", ["No description"]):
+        movement_skill_y = 560
+        screen.blit(font.render("movement_skill:", True, (200, 100, 255)), (x_off - 30 + 85, movement_skill_y))
+        movement_skill_y += 22
+        for line in movement_skills[ul].get("desc", ["No description"]):
             t = font.render(line, True, (190, 150, 255))
-            screen.blit(t, (x_off - 30 + 85, ult_y))
-            ult_y += 22
+            screen.blit(t, (x_off - 30 + 85, movement_skill_y))
+            movement_skill_y += 22
 
     pygame.draw.rect(screen, (0, 180, 80), menu_buttons["start"], border_radius=8)
     start_text = font.render("START", True, (0, 0, 0))
@@ -959,13 +1013,13 @@ def handle_menu_click(pos):
     if menu_buttons["p2_layer_next"].collidepoint(pos):
         cycle_layer("p2", 1)
 
-    for btn in menu_buttons["p1_ults"]:
+    for btn in menu_buttons["p1_movement_skills"]:
         if btn["rect"].collidepoint(pos):
-            menu["p1"]["ult"] = btn["value"]
+            menu["p1"]["movement_skill"] = btn["value"]
 
-    for btn in menu_buttons["p2_ults"]:
+    for btn in menu_buttons["p2_movement_skills"]:
         if btn["rect"].collidepoint(pos):
-            menu["p2"]["ult"] = btn["value"]
+            menu["p2"]["movement_skill"] = btn["value"]
     if menu_buttons["start"].collidepoint(pos):
         global Circle1, Circle2, Wall1, Wall2, game_state
 
@@ -980,7 +1034,7 @@ def handle_menu_click(pos):
                              hit_vel=pygame.Vector2(0, 0), vel=pygame.Vector2(0, 0),
                              angle=0, layers=menu["p1"]["layer"],
                              stamina=0.1, lose=False, hit_cooldown=0,
-                             ult=menu["p1"]["ult"])
+                             movement_skill=menu["p1"]["movement_skill"])
 
             Circle2 = Circle(pos=1, last_distance=None, calc_distance=0,
                              inertia=10, count=0, duration=1, startx=375, starty=250,
@@ -989,7 +1043,7 @@ def handle_menu_click(pos):
                              hit_vel=pygame.Vector2(0, 0), vel=pygame.Vector2(0, 0),
                              angle=0, layers=menu["p2"]["layer"],
                              stamina=0.1, lose=False, hit_cooldown=0,
-                             ult=menu["p2"]["ult"])
+                             movement_skill=menu["p2"]["movement_skill"])
             # length, breadth,  circle , angle,
             Wall1 = Wall(length=75, breadth=110, circle=Circle1, angle=0, spread=15)
             Wall2 = Wall(length=75, breadth=110, circle=Circle2, angle=135, spread=15)
@@ -1046,27 +1100,27 @@ async def main():
                     if event.key == pygame.K_l:
                         dir_key2 = not dir_key2
 
-        if p1_skill and Circle1.ult_cd == 0:
-            Circle1.in_ult = ults[Circle1.ult]["duration"]
-            Circle1.ult_cd = ults[Circle1.ult]["cooldown"]
-            if Circle1.ult in ("guard", "accel"):
-                Circle1.base_vel *= ults[Circle1.ult]["vel_boost"]
-            elif Circle1.ult == "anchor":
-                Circle1.base_vel *= ults[Circle1.ult]["vel_boost"] * 2
-                Circle1.hit_vel *= ults[Circle1.ult]["vel_boost"]
+        if p1_skill and Circle1.movement_skill_cd == 0:
+            Circle1.in_movement_skill = movement_skills[Circle1.movement_skill]["duration"]
+            Circle1.movement_skill_cd = movement_skills[Circle1.movement_skill]["cooldown"]
+            if Circle1.movement_skill in ("guard", "accel"):
+                Circle1.base_vel *= movement_skills[Circle1.movement_skill]["vel_boost"]
+            elif Circle1.movement_skill == "anchor":
+                Circle1.base_vel *= movement_skills[Circle1.movement_skill]["vel_boost"] * 2
+                Circle1.hit_vel *= movement_skills[Circle1.movement_skill]["vel_boost"]
         p1_skill = False
 
-        if p2_skill and Circle2.ult_cd == 0:
-            Circle2.in_ult = ults[Circle2.ult]["duration"]
-            Circle2.ult_cd = ults[Circle2.ult]["cooldown"]
-            if Circle2.ult == "guard":
-                Circle2.base_vel *= ults[Circle2.ult]["vel_boost"]
-            elif Circle2.ult == "accel":
-                Circle2.base_vel *= ults[Circle2.ult]["vel_boost"]
+        if p2_skill and Circle2.movement_skill_cd == 0:
+            Circle2.in_movement_skill = movement_skills[Circle2.movement_skill]["duration"]
+            Circle2.movement_skill_cd = movement_skills[Circle2.movement_skill]["cooldown"]
+            if Circle2.movement_skill == "guard":
+                Circle2.base_vel *= movement_skills[Circle2.movement_skill]["vel_boost"]
+            elif Circle2.movement_skill == "accel":
+                Circle2.base_vel *= movement_skills[Circle2.movement_skill]["vel_boost"]
                 Circle2.inertia += 12
-            elif Circle2.ult == "anchor":
-                Circle2.base_vel *= ults[Circle2.ult]["vel_boost"]
-                Circle2.hit_vel *= ults[Circle2.ult]["vel_boost"]
+            elif Circle2.movement_skill == "anchor":
+                Circle2.base_vel *= movement_skills[Circle2.movement_skill]["vel_boost"]
+                Circle2.hit_vel *= movement_skills[Circle2.movement_skill]["vel_boost"]
         p2_skill = False
         # menu on
         if game_state == 'menu':
@@ -1077,12 +1131,16 @@ async def main():
             screen.fill((0, 0, 0))
             pygame.draw.circle(screen, (255, 255, 255), center, 350, 7)
             pygame.draw.circle(screen, (255, 0, 0), center, 120, 3)
+            #pygame.draw.circle(screen, (220, 220, 220), center, 240, 3)
 
-            pygame.draw.rect(screen, (140, 140, 140), p1_wall_btn, border_radius=25)
-            pygame.draw.rect(screen, (140, 140, 140), p2_wall_btn, border_radius=25)
-            pygame.draw.rect(screen, (layers[Circle1.layers]["color"]), p1_skill_btn, border_radius=25)
-            pygame.draw.rect(screen, (layers[Circle2.layers]["color"]), p2_skill_btn, border_radius=25)
+            #pygame.draw.rect(screen, (180, 180, 180),(374,150,2,450) , border_radius=40)
+            #pygame.draw.rect(screen, (180, 180, 180), (150, 374, 450, 2), border_radius=40)
+            pygame.draw.rect(screen, (140, 140, 140), p1_wall_btn, border_radius=50)
+            pygame.draw.rect(screen, (140, 140, 140), p2_wall_btn, border_radius=50)
+            pygame.draw.rect(screen, (layers[Circle1.layers]["color"]), p1_skill_btn, border_radius=50)
+            pygame.draw.rect(screen, (layers[Circle2.layers]["color"]), p2_skill_btn, border_radius=50)
             pygame.draw.rect(screen, (250, 40, 40), RESET_BUTTON_RECT, border_radius=60)
+
             #reset_btn_text = font.render("RESET", True, (255, 255, 255))
             #screen.blit(reset_btn_text, (RESET_BUTTON_RECT.x + 8, RESET_BUTTON_RECT.y + 8))
 
@@ -1115,8 +1173,10 @@ async def main():
                     wall_hit_circle(Wall1, Circle1)
                     wall_hit_circle(Wall2, Circle2)
 
-                    Circle1.hit(Circle2)
-                    Circle2.hit(Circle1)
+                    if Circle1.hit(Circle2):
+                        pass
+                    else:
+                        Circle2.hit(Circle1)
 
             # =========================
             # DRAWING
@@ -1128,8 +1188,8 @@ async def main():
                 Circle1.draw(0, 0, 0)
                 Circle1.draw_parts()
 
-                if Circle1.in_ult > 0:
-                    Circle1.draw_ult_trail()
+                if Circle1.in_movement_skill > 0:
+                    Circle1.draw_movement_skill_trail()
 
             if not Circle2.lose:
                 Circle2.draw_trail()
@@ -1137,8 +1197,8 @@ async def main():
                 Circle2.draw(0, 0, 0)
                 Circle2.draw_parts()
 
-                if Circle2.in_ult > 0:
-                    Circle2.draw_ult_trail()
+                if Circle2.in_movement_skill > 0:
+                    Circle2.draw_movement_skill_trail()
 
             Wall1.draw(Circle1.layers)
             Wall2.draw(Circle2.layers)
@@ -1170,7 +1230,7 @@ async def main():
             c1_hp = start_angle + c1_hp * 2 * math.pi
 
             if c1_hp > start_angle:  # avoid a zero-length arc call
-                pygame.draw.arc(screen, "green", [650, 650, 100, 100], start_angle, c1_hp, 10)
+                pygame.draw.arc(screen, "green", [630, 630, 120, 120], start_angle, c1_hp, 10)
 
             c2_hp = max(0.0, min(Circle2.stamina / 0.1, 1.0))  # clamp
 
@@ -1178,7 +1238,7 @@ async def main():
             c2_hp = start_angle + c2_hp * 2 * math.pi
 
             if c2_hp > start_angle:  # avoid a zero-length arc call
-                pygame.draw.arc(screen, "green", [0, 0, 100, 100], start_angle, c2_hp, 10)
+                pygame.draw.arc(screen, "green", [0, 0, 120, 120], start_angle, c2_hp, 10)
 
 
         pygame.display.flip()
