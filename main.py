@@ -1,6 +1,6 @@
-#archaic-spin_v1.014
-#redo dmg and stamina, standardised defence
-#next to start doing ults
+#archaic-spin_v1.02
+#adding cooler mythos
+#next to start doing ults or more mythos
 #milestone goal: ults
 
 import pygame
@@ -80,6 +80,7 @@ layers = {
         "color": (240,0,10),
         'desc':['attack type with strong crit ',
                 'but only on the tip'],
+        "ult": '',
 #weight= 0.06, grip = 0.07,inertia_strength= 2,
         "parts": [
             {
@@ -110,7 +111,7 @@ layers = {
                 "name": "big_blade",
                 "points": [[0, 38], [13, 22], [17, -4], [0, -25], [-17, -4], [-13, 22]],
                 "color": (240, 0, 10),
-                "knockback": 17,
+                "knockback": 18,
                 "resistance": 1
             },
             {
@@ -148,7 +149,7 @@ layers = {
                 "points": [[-34, -12], [-23, -26], [-9, -26], [-5, -24], [-17, -4], [-13, 20], [-28, 18], [-32, 2],
                            [-27, -4]],
                 "color": (20, 180, 20),
-                "knockback": 6,
+                "knockback": 8,
                 "resistance": 0.6
             },
             {
@@ -156,21 +157,21 @@ layers = {
                 "points": [[34, 12], [23, 26], [9, 26], [5, 24], [17, 4], [13, -20], [28, -18], [32, -2],
                            [27, 8]],
                 "color": (20, 180, 20),
-                "knockback": 6,
+                "knockback": 8,
                 "resistance": 0.6
             },
             {
                 "name": "prod_1",
                 "points": [[-21, 25], [-25, 2], [-4, 35]],
                 "color": (20, 100, 20),
-                "knockback": 11,
+                "knockback": 12,
                 "resistance": 0.75
             },
             {
                 "name": "prod_2",
                 "points": [[21, -25], [25, -2], [4, -35]],
                 "color": (20, 100, 20),
-                "knockback": 11,
+                "knockback": 12,
                 "resistance": 0.75
             },
 
@@ -200,7 +201,7 @@ layers = {
                 "name": "blade_1",
                 "points": [[25.9808, -15], [26, -26], [19, -32.5], [19, -26], [12, -34], [1, -35], [11, -25]],
                 "color": (50, 150, 250),
-                "knockback": 9,
+                "knockback": 10,
                 "resistance": 0.9
             },
             {
@@ -208,7 +209,7 @@ layers = {
                 "points": [[-0.0004, 30.0000], [9.5167, 35.5167], [18.6458, 32.7045], [13.0167, 29.4545],
                            [23.4449, 27.3923], [29.8109, 18.3660], [16.1506, 22.0263]],
                 "color": (50, 150, 250),
-                "knockback": 9,
+                "knockback": 10,
                 "resistance": 0.9
             },
             {
@@ -216,7 +217,7 @@ layers = {
                 "points": [[-25.9804, -15.0000], [-35.5167, -9.5167], [-37.6458, -0.2045],
                            [-32.0167, -3.4545], [-35.4449, 6.6077], [-30.8109, 16.6340], [-27.1506, 2.9737]],
                 "color": (50, 150, 250),
-                "knockback": 9,
+                "knockback": 10,
                 "resistance": 0.9
             },
 
@@ -331,6 +332,71 @@ layers = {
 
         ]
     },
+
+    "hraesvelgr": {
+        "type": "attack",
+
+        "weight": 0.06,
+        "grip": 0.07,
+        "inertia_strength": 2.8,
+        "color": (80, 80, 80),
+        "parts": [
+            {"name": "core",
+             "points": make_circle_points(30),
+             "color": (120, 120, 120),
+             "knockback": 0.1,
+             "resistance": 0,
+             "the_core": True
+             },
+
+            {"name": "hilt_1",
+             "points": [[-6, -31], [8, -30], [14, -24], [18, -13], ],
+             "color": (90, 90, 150),
+             "knockback": 10,
+             "resistance": 0.8
+             },
+
+            {"name": "wing_1",
+             "points": [[3, -36], [14, -32], [14, -23], [15, -34], [21, -25], [20, -16], [22, -27], [27, -15], [19, 5],
+                        [19, -7], [15, -18], ],
+             "color": (120, 120, 190),
+             "knockback": 13,
+             "resistance": 0.85
+             },
+
+            {"name": "beak_1",
+             "points": [[21, -8], [25, -4], [25, -11], [29, -6], [30, -15], [34, -3], [30, 4], [28, 18], [26, 19],
+                        [27, 17], [26.5, 4], [22, -1]],
+             "color": (140, 140, 210),
+             "knockback": 14,
+             "resistance": 0.9,
+             },
+
+            {"name": "hilt_2",
+             "points": [[6, 31], [-8, 30], [-14, 24], [-18, 13], ],
+             "color": (90, 90, 150),
+             "knockback": 10,
+             "resistance": 0.8
+             },
+
+            {"name": "wing_2",
+             "points": [[-3, 36], [-14, 32], [-14, 23], [-15, 34], [-21, 25], [-20, 16],
+                        [-22, 27], [-27, 15], [-19, -5], [-19, 7], [-15, 18]],
+             "color": (120, 120, 190),
+             "knockback": 13,
+             "resistance": 0.85
+             },
+
+            {"name": "beak_2",
+             "points": [[-21, 8], [-25, 4], [-25, 11], [-29, 6], [-30, 15], [-34, 3],
+                        [-30, -4], [-28, -18], [-26, -19], [-27, -17], [-26.5, -4], [-22, 1]],
+             "color": (140, 140, 210),
+             "knockback": 14,
+             "resistance": 0.9,
+             },
+
+        ],
+    },
 }
 
 
@@ -425,6 +491,12 @@ class Circle:
         self.movement_skill = movement_skill
         self.movement_skill_cd = 0
         self.in_movement_skill = 0
+
+        #ults
+        self.ult = layers[self.layers]["ult"]
+        self.ult_charge = 0
+        self.ult_active = 0
+        self.ult_cd = 0
 
 
     def inspin(self,center, ):
